@@ -18,9 +18,7 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   void _refreshHistory() {
-    setState(() {
-      _historyList = DatabaseHelper.instance.getHistory();
-    });
+    _historyList = DatabaseHelper.instance.getHistory();
   }
 
   String _formatBytes(int bytes) {
@@ -46,78 +44,140 @@ class _HistoryPageState extends State<HistoryPage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
+          }
+
+          if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Belum ada riwayat data."));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                "Belum ada riwayat penggunaan",
+                style: TextStyle(fontSize: 16),
+              ),
+            );
           }
 
           final data = snapshot.data!;
 
           return ListView.builder(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             itemCount: data.length,
             itemBuilder: (context, index) {
               final item = data[index];
 
-              return Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              int wifi = item['wifi'];
+              int mobile = item['mobile'];
+              int total = wifi + mobile;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    )
+                  ],
                 ),
-                margin: const EdgeInsets.only(bottom: 10),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      
-                      /// tanggal
-                      Row(
-                        children: [
-                          const Icon(Icons.calendar_today,
-                              size: 18, color: Colors.blue),
-                          const SizedBox(width: 8),
-                          Text(
-                            item['date'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    /// Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Riwayat Data",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_today,
+                                size: 16, color: Colors.blue),
+                            const SizedBox(width: 5),
+                            Text(item['date']),
+                          ],
+                        )
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    /// Wifi
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-
-                      const Divider(),
-
-                      /// wifi
-                      Row(
+                      child: Row(
                         children: [
                           const Icon(Icons.wifi, color: Colors.blue),
                           const SizedBox(width: 10),
                           Text(
-                            "WiFi: ${_formatBytes(item['wifi'])}",
-                            style: const TextStyle(fontSize: 14),
+                            "WiFi: ${_formatBytes(wifi)}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
+                    ),
 
-                      const SizedBox(height: 6),
+                    const SizedBox(height: 8),
 
-                      /// mobile
-                      Row(
+                    /// Mobile
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
                         children: [
                           const Icon(Icons.signal_cellular_alt,
                               color: Colors.green),
                           const SizedBox(width: 10),
                           Text(
-                            "Mobile: ${_formatBytes(item['mobile'])}",
-                            style: const TextStyle(fontSize: 14),
+                            "Mobile: ${_formatBytes(mobile)}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// Total
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Text(
+                          "Total: ",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          _formatBytes(total),
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      ],
+                    )
+                  ],
                 ),
               );
             },
@@ -127,4 +187,3 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 }
-ini
