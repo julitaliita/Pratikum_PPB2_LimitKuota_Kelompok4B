@@ -23,7 +23,6 @@ class _HistoryPageState extends State<HistoryPage> {
     });
   }
 
-  // Helper untuk format bytes (sama seperti di Network page)
   String _formatBytes(int bytes) {
     if (bytes <= 0) return "0.00 MB";
     double mb = bytes / (1024 * 1024);
@@ -36,7 +35,12 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Riwayat Penggunaan")),
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        title: const Text("Riwayat Penggunaan"),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+      ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _historyList,
         builder: (context, snapshot) {
@@ -49,23 +53,69 @@ class _HistoryPageState extends State<HistoryPage> {
           }
 
           final data = snapshot.data!;
+
           return ListView.builder(
+            padding: const EdgeInsets.all(10),
             itemCount: data.length,
             itemBuilder: (context, index) {
               final item = data[index];
+
               return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: ListTile(
-                  leading: const Icon(Icons.history, color: Colors.blue),
-                  title: Text(
-                    item['date'], // Tanggal (YYYY-MM-DD)
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                margin: const EdgeInsets.only(bottom: 10),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("WiFi: ${_formatBytes(item['wifi'])}"),
-                      Text("Mobile: ${_formatBytes(item['mobile'])}"),
+                      
+                      /// tanggal
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              size: 18, color: Colors.blue),
+                          const SizedBox(width: 8),
+                          Text(
+                            item['date'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const Divider(),
+
+                      /// wifi
+                      Row(
+                        children: [
+                          const Icon(Icons.wifi, color: Colors.blue),
+                          const SizedBox(width: 10),
+                          Text(
+                            "WiFi: ${_formatBytes(item['wifi'])}",
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      /// mobile
+                      Row(
+                        children: [
+                          const Icon(Icons.signal_cellular_alt,
+                              color: Colors.green),
+                          const SizedBox(width: 10),
+                          Text(
+                            "Mobile: ${_formatBytes(item['mobile'])}",
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
